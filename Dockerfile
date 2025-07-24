@@ -1,23 +1,14 @@
-# 1. Use official Maven image to build the project
-FROM maven:3.9.6-eclipse-temurin-17 AS build
-
-# Set working directory
-WORKDIR /app
-
-# Copy all files
-COPY . .
-
-# Build the application without running tests
-RUN mvn clean package -DskipTests
-
-# 2. Use a lightweight OpenJDK image to run the app
+# Use an official OpenJDK image
 FROM eclipse-temurin:17-jdk
 
-# Set working directory
+# Set working directory inside container
 WORKDIR /app
 
-# Copy the built JAR from the build image
-COPY --from=build /app/target/bhojan-0.0.1-SNAPSHOT.jar app.jar
+# Copy all project files into the container
+COPY . .
 
-# Run the JAR
-CMD ["java", "-jar", "app.jar"]
+# Build the Spring Boot application
+RUN ./mvnw clean package -DskipTests
+
+# Run the generated JAR
+CMD ["java", "-jar", "target/bhojan-0.0.1-SNAPSHOT.jar"]
