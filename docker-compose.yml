@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8
+    container_name: mysql-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: hk117
+      MYSQL_DATABASE: food
+    ports:
+      - "3307:3306"
+    networks:
+      - bhojan-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-phk117"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    build: .
+    container_name: bhojan-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/food
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: hk117
+    networks:
+      - bhojan-net
+
+networks:
+  bhojan-net:
